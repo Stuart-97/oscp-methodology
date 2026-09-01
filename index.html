@@ -767,6 +767,7 @@
             .service-header {
                 flex-wrap: wrap;
             }
+
         }
 
     </style>
@@ -1028,6 +1029,32 @@ const methodology = [
                         notes:
                             "Record the SSH version and authentication configuration."
                     },
+		    {
+                        name: "SSH Authentication Methods Enumeration",
+                        tool: "nmap",
+
+                        description:
+                            "Perform service and version detection.",
+
+                        command:
+                            "nmap -p22 TARGET --script=ssh-auth-methods",
+
+                        notes:
+                            "Find out which authentication methods the SSH server supports"
+                    },
+ 		    {
+                        name: "SSH Fingerprinting",
+                        tool: "ssh-keygen",
+
+                        description:
+                            "Viewing the fingerprint of an SSH key.",
+
+                        command:
+                            "ssh-keygen -l -f <path to SSH key>",
+
+                        notes:
+                            "Displays the fingerprint of an SSH key stored in the file id_rsa."
+                    },
 
                     {
                         name: "Verbose SSH",
@@ -1041,6 +1068,34 @@ const methodology = [
 
                         notes:
                             "Verbose output can reveal useful protocol information."
+                    }
+
+                ]
+            },
+
+
+            /* ------------------------------------------------
+               SSH EXPLOITATION
+            ------------------------------------------------ */
+
+            {
+                id: "ssh-exploitation",
+                name: "SSH Exploitation",
+
+                commands: [
+
+                    {
+                        name: "SSH Key Authentication",
+                        tool: "nxc",
+
+                        description:
+                            "Authenticate to an SSH service using a private key with NetExec.",
+
+                        command:
+                            "nxc ssh TARGET -u <username_or_userfile> --key-file <path_to_private_key> -p <passphrase_or_passphrasefile, use -p \"\" if there is no password>",
+
+                        notes:
+                            "Replace the placeholders with the appropriate username, private key path and passphrase. Use -p \"\" when the private key has no passphrase."
                     }
 
                 ]
@@ -1439,6 +1494,401 @@ const methodology = [
 
         ]
     },
+/* ========================================================
+   MSSQL 1433
+======================================================== */
+
+{
+    id: "mssql",
+    number: "1433",
+    protocol: "MSSQL",
+    name: "Microsoft SQL Server",
+
+    description:
+        "Enumerate Microsoft SQL Server, identify the database version and configuration, and test authorised database access.",
+
+    subsections: [
+
+        {
+            id: "mssql-enumeration",
+            name: "MSSQL Enumeration",
+
+            commands: [
+
+                {
+                    name: "MSSQL Enumeration",
+                    tool: "nmap",
+
+                    description:
+                        "Perform service and version detection against the MSSQL service.",
+
+                    command:
+                        "nmap -sC -sV -p1433 TARGET",
+
+                    notes:
+                        "Record the SQL Server version, instance information and other service details."
+                },
+
+                {
+                    name: "MSSQL NSE Scripts",
+                    tool: "nmap",
+
+                    description:
+                        "Run MSSQL-specific NSE scripts.",
+
+                    command:
+                        "nmap --script=ms-sql-* -p1433 TARGET",
+
+                    notes:
+                        "Review the results for SQL Server information and configuration details."
+                },
+
+                {
+                    name: "MSSQL Discovery",
+                    tool: "nmap",
+
+                    description:
+                        "Use MSSQL discovery scripts to identify additional SQL Server information.",
+
+                    command:
+                        "nmap --script=ms-sql-info -p1433 TARGET",
+
+                    notes:
+                        "Useful for identifying the SQL Server version and instance information."
+                }
+
+            ]
+        },
+
+
+        {
+            id: "mssql-access",
+            name: "MSSQL Access",
+
+            commands: [
+
+                {
+                    name: "Connect with Impacket",
+                    tool: "impacket-mssqlclient",
+
+                    description:
+                        "Connect to Microsoft SQL Server using supplied credentials.",
+
+                    command:
+                        "impacket-mssqlclient USERNAME:PASSWORD@TARGET",
+
+                    notes:
+                        "Use credentials discovered during the authorised assessment."
+                },
+
+                {
+                    name: "Windows Authentication",
+                    tool: "impacket-mssqlclient",
+
+                    description:
+                        "Connect using Windows domain credentials.",
+
+                    command:
+                        "impacket-mssqlclient DOMAIN/USERNAME:PASSWORD@TARGET",
+
+                    notes:
+                        "Replace DOMAIN, USERNAME, PASSWORD and TARGET with the appropriate values."
+                },
+
+                {
+                    name: "Trusted Connection",
+                    tool: "impacket-mssqlclient",
+
+                    description:
+                        "Authenticate using an existing Windows authentication context.",
+
+                    command:
+                        "impacket-mssqlclient -windows-auth DOMAIN/USERNAME:PASSWORD@TARGET",
+
+                    notes:
+                        "The -windows-auth option is commonly required when authenticating against a Windows-based SQL Server."
+                }
+
+            ]
+        },
+
+
+        {
+            id: "mssql-database",
+            name: "Database Enumeration",
+
+            commands: [
+
+                {
+                    name: "List Databases",
+                    tool: "mssqlclient",
+
+                    description:
+                        "List databases accessible to the authenticated SQL Server account.",
+
+                    command:
+                        "SELECT name FROM sys.databases;",
+
+                    notes:
+                        "Run from the MSSQL client after authentication."
+                },
+
+                {
+                    name: "Current User",
+                    tool: "mssqlclient",
+
+                    description:
+                        "Identify the current SQL Server user.",
+
+                    command:
+                        "SELECT SYSTEM_USER;",
+
+                    notes:
+                        "Useful for identifying the current security context."
+                },
+
+                {
+                    name: "Server Version",
+                    tool: "mssqlclient",
+
+                    description:
+                        "Display the SQL Server version.",
+
+                    command:
+                        "SELECT @@VERSION;",
+
+                    notes:
+                        "Record the SQL Server version for further research."
+                },
+
+                {
+                    name: "List Tables",
+                    tool: "mssqlclient",
+
+                    description:
+                        "List tables in the current database.",
+
+                    command:
+                        "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;",
+
+                    notes:
+                        "Useful for identifying potentially interesting tables."
+                }
+
+            ]
+        },
+
+
+        {
+            id: "mssql-privileges",
+            name: "MSSQL Privileges",
+
+            commands: [
+
+                {
+                    name: "Check Sysadmin",
+                    tool: "mssqlclient",
+
+                    description:
+                        "Determine whether the current account has SQL Server sysadmin privileges.",
+
+                    command:
+                        "SELECT IS_SRVROLEMEMBER('sysadmin');",
+
+                    notes:
+                        "A result of 1 indicates that the current account is a member of the sysadmin server role."
+                },
+
+                {
+                    name: "Server Roles",
+                    tool: "mssqlclient",
+
+                    description:
+                        "Enumerate server roles associated with the current login.",
+
+                    command:
+                        "SELECT IS_SRVROLEMEMBER();",
+
+                    notes:
+                        "Use role membership information to understand the privileges available to the current account."
+                }
+
+            ]
+        }
+
+    ]
+},
+	/* ========================================================
+   MYSQL 3306
+======================================================== */
+
+{
+    id: "mysql",
+    number: "3306",
+    protocol: "MYSQL",
+    name: "MySQL",
+
+    description:
+        "Enumerate the MySQL service, identify the database version and configuration, and test authorised database access.",
+
+    subsections: [
+
+        {
+            id: "mysql-enumeration",
+            name: "MySQL Enumeration",
+
+            commands: [
+
+                {
+                    name: "MySQL Enumeration",
+                    tool: "nmap",
+
+                    description:
+                        "Perform service and version detection against the MySQL service.",
+
+                    command:
+                        "nmap -sC -sV -p3306 TARGET",
+
+                    notes:
+                        "Record the MySQL version, hostname, authentication information and other service details."
+                },
+
+                {
+                    name: "MySQL NSE Scripts",
+                    tool: "nmap",
+
+                    description:
+                        "Run MySQL-specific NSE scripts.",
+
+                    command:
+                        "nmap --script=mysql-* -p3306 TARGET",
+
+                    notes:
+                        "Review the output for useful service and configuration information."
+                },
+
+            ]
+        },
+
+        {
+            id: "mysql-access",
+            name: "MySQL Access",
+
+            commands: [
+
+                {
+                    name: "Connect to MySQL",
+                    tool: "mysql",
+
+                    description:
+                        "Connect to the MySQL service using supplied credentials.",
+
+                    command:
+                        "mysql -h TARGET -P 3306 -u USERNAME -p'' --skip-ssl-verify-server-cert",
+
+                    notes:
+                        "Enter the password when prompted."
+                },
+
+                {
+                    name: "Connect to Specific Database",
+                    tool: "mysql",
+
+                    description:
+                        "Connect directly to a specific MySQL database.",
+
+                    command:
+                        "mysql -h TARGET -P 3306 -u USERNAME -p'' DATABASE",
+
+                    notes:
+                        "Replace DATABASE with a discovered database name."
+                },
+
+                {
+                    name: "Show Databases",
+                    tool: "mysql",
+
+                    description:
+                        "List databases available to the authenticated account.",
+
+                    command:
+                        "SHOW DATABASES;",
+
+                    notes:
+                        "Run this from the MySQL prompt after authentication."
+                },
+
+                {
+                    name: "Show Tables",
+                    tool: "mysql",
+
+                    description:
+                        "List tables in the currently selected database.",
+
+                    command:
+                        "SHOW TABLES;",
+
+                    notes:
+                        "Run USE DATABASE; first if a database has not already been selected."
+                }
+
+            ]
+        },
+
+        {
+            id: "mysql-information",
+            name: "Database Information",
+
+            commands: [
+
+                {
+                    name: "MySQL Version",
+                    tool: "mysql",
+
+                    description:
+                        "Display the MySQL server version from an authenticated session.",
+
+                    command:
+                        "SELECT VERSION();",
+
+                    notes:
+                        "Useful for identifying the exact database version."
+                },
+
+                {
+                    name: "Current User",
+                    tool: "mysql",
+
+                    description:
+                        "Display the account currently being used.",
+
+                    command:
+                        "SELECT USER();",
+
+                    notes:
+                        "Useful for identifying the authenticated MySQL account."
+                },
+
+                {
+                    name: "Current Database",
+                    tool: "mysql",
+
+                    description:
+                        "Display the currently selected database.",
+
+                    command:
+                        "SELECT DATABASE();",
+
+                    notes:
+                        "Returns NULL if no database has been selected."
+                }
+
+            ]
+        }
+
+    ]
+},
+
 
 
     /* ========================================================
@@ -1521,10 +1971,6 @@ const methodology = [
 
         subsections: [
 
-            /* ------------------------------------------------
-               DOMAIN ENUMERATION
-            ------------------------------------------------ */
-
             {
                 id: "ad-domain-enumeration",
                 name: "Domain Enumeration",
@@ -1561,11 +2007,6 @@ const methodology = [
 
                 ]
             },
-
-
-            /* ------------------------------------------------
-               USER ENUMERATION
-            ------------------------------------------------ */
 
             {
                 id: "ad-user-enumeration",
@@ -1618,11 +2059,6 @@ const methodology = [
                 ]
             },
 
-
-            /* ------------------------------------------------
-               KERBEROS
-            ------------------------------------------------ */
-
             {
                 id: "ad-kerberos",
                 name: "Kerberos",
@@ -1660,11 +2096,6 @@ const methodology = [
                 ]
             },
 
-
-            /* ------------------------------------------------
-               LDAP
-            ------------------------------------------------ */
-
             {
                 id: "ad-ldap",
                 name: "LDAP",
@@ -1701,11 +2132,6 @@ const methodology = [
 
                 ]
             },
-
-
-            /* ------------------------------------------------
-               SMB
-            ------------------------------------------------ */
 
             {
                 id: "ad-smb",
@@ -1763,10 +2189,6 @@ const methodology = [
 
         subsections: [
 
-            /* ------------------------------------------------
-               SYSTEM ENUMERATION
-            ------------------------------------------------ */
-
             {
                 id: "win-system",
                 name: "System Enumeration",
@@ -1817,11 +2239,6 @@ const methodology = [
 
                 ]
             },
-
-
-            /* ------------------------------------------------
-               USERS & GROUPS
-            ------------------------------------------------ */
 
             {
                 id: "win-users",
@@ -1888,11 +2305,6 @@ const methodology = [
                 ]
             },
 
-
-            /* ------------------------------------------------
-               SERVICES
-            ------------------------------------------------ */
-
             {
                 id: "win-services",
                 name: "Services",
@@ -1930,11 +2342,6 @@ const methodology = [
                 ]
             },
 
-
-            /* ------------------------------------------------
-               SCHEDULED TASKS
-            ------------------------------------------------ */
-
             {
                 id: "win-scheduled",
                 name: "Scheduled Tasks",
@@ -1957,11 +2364,6 @@ const methodology = [
 
                 ]
             },
-
-
-            /* ------------------------------------------------
-               CREDENTIALS
-            ------------------------------------------------ */
 
             {
                 id: "win-credentials",
@@ -2019,10 +2421,6 @@ const methodology = [
 
         subsections: [
 
-            /* ------------------------------------------------
-               SYSTEM ENUMERATION
-            ------------------------------------------------ */
-
             {
                 id: "linux-system",
                 name: "System Enumeration",
@@ -2073,11 +2471,6 @@ const methodology = [
 
                 ]
             },
-
-
-            /* ------------------------------------------------
-               USERS & GROUPS
-            ------------------------------------------------ */
 
             {
                 id: "linux-users",
@@ -2130,11 +2523,6 @@ const methodology = [
                 ]
             },
 
-
-            /* ------------------------------------------------
-               SUDO
-            ------------------------------------------------ */
-
             {
                 id: "linux-sudo",
                 name: "Sudo",
@@ -2157,11 +2545,6 @@ const methodology = [
 
                 ]
             },
-
-
-            /* ------------------------------------------------
-               SUID / SGID
-            ------------------------------------------------ */
 
             {
                 id: "linux-suid",
@@ -2200,11 +2583,6 @@ const methodology = [
                 ]
             },
 
-
-            /* ------------------------------------------------
-               CAPABILITIES
-            ------------------------------------------------ */
-
             {
                 id: "linux-capabilities",
                 name: "Linux Capabilities",
@@ -2227,11 +2605,6 @@ const methodology = [
 
                 ]
             },
-
-
-            /* ------------------------------------------------
-               CRON
-            ------------------------------------------------ */
 
             {
                 id: "linux-cron",
