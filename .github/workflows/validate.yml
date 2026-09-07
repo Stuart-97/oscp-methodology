@@ -1,0 +1,50 @@
+name: Validate OSCP Methodology
+
+on:
+  push:
+    branches:
+      - main
+
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check index.html exists
+        run: |
+          test -f index.html
+          echo "✓ index.html exists"
+
+      - name: Extract JavaScript
+        run: |
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          html = Path("index.html").read_text()
+
+          scripts = re.findall(
+              r"<script(?:\s[^>]*)?>(.*?)</script>",
+              html,
+              flags=re.DOTALL | re.IGNORECASE
+          )
+
+          if not scripts:
+              raise SystemExit("No inline JavaScript found")
+
+          Path("/tmp/app.js").write_text(
+              "\n\n".join(scripts)
+          )
+
+          print("✓ JavaScript extracted")
+          PY
+
+      - name: Check JavaScript syntax
+        run: |
+          node --check /tmp/app.js
+          echo "✓ JavaScript syntax is valid"
