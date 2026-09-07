@@ -1,0 +1,2150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OSCP Methodology</title>
+
+<style>
+:root{
+    --bg:#0a0e14;
+    --bg-secondary:#0f151d;
+    --card:#111923;
+    --card-hover:#151f2b;
+    --border:#243242;
+    --text:#d6deeb;
+    --muted:#7f8da3;
+    --green:#00ff9c;
+    --green-dark:#00b873;
+    --blue:#58a6ff;
+    --yellow:#e3b341;
+    --red:#ff6b81;
+    --code:#080c11;
+}
+
+*{box-sizing:border-box}
+
+html{scroll-behavior:smooth}
+
+body{
+    margin:0;
+    background:
+        radial-gradient(
+            circle at 20% 0%,
+            rgba(0,255,156,.05),
+            transparent 30%
+        ),
+        var(--bg);
+    color:var(--text);
+    font-family:
+        Inter,
+        ui-sans-serif,
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+    line-height:1.6;
+}
+
+a{
+    color:var(--green);
+    text-decoration:none;
+}
+
+header{
+    border-bottom:1px solid var(--border);
+    background:rgba(10,14,20,.88);
+    backdrop-filter:blur(12px);
+    position:sticky;
+    top:0;
+    z-index:100;
+}
+
+.header-inner{
+    max-width:1400px;
+    margin:auto;
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.logo{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-weight:800;
+    letter-spacing:-.5px;
+}
+
+.terminal-icon{
+    width:38px;
+    height:38px;
+    border:1px solid var(--green);
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--green);
+    font-family:monospace;
+    font-weight:bold;
+    box-shadow:0 0 15px rgba(0,255,156,.1);
+}
+
+.logo span{color:var(--green)}
+
+.hero{
+    max-width:1400px;
+    margin:auto;
+    padding:70px 24px 45px;
+}
+
+.hero h1{
+    margin:0;
+    font-size:clamp(2.2rem,5vw,4rem);
+    line-height:1.05;
+    letter-spacing:-2px;
+}
+
+.hero h1 span{color:var(--green)}
+
+.hero p{
+    max-width:720px;
+    margin-top:20px;
+    color:var(--muted);
+    font-size:1.05rem;
+}
+
+.terminal-line{
+    margin-top:30px;
+    padding:14px 18px;
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    background:var(--code);
+    border:1px solid var(--border);
+    border-radius:8px;
+    font-family:monospace;
+    color:var(--green);
+}
+
+.prompt{color:var(--muted)}
+
+.container{
+    max-width:1400px;
+    margin:auto;
+    padding:0 24px 70px;
+    display:grid;
+    grid-template-columns:270px 1fr;
+    gap:30px;
+}
+
+.sidebar{
+    position:sticky;
+    top:90px;
+    align-self:start;
+    max-height:calc(100vh - 110px);
+    overflow-y:auto;
+    padding-right:8px;
+}
+
+.sidebar::-webkit-scrollbar{width:6px}
+.sidebar::-webkit-scrollbar-track{background:transparent}
+.sidebar::-webkit-scrollbar-thumb{
+    background:var(--border);
+    border-radius:10px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover{
+    background:var(--green-dark);
+}
+
+.sidebar-title{
+    color:var(--muted);
+    font-size:.75rem;
+    text-transform:uppercase;
+    letter-spacing:1.5px;
+    margin-bottom:12px;
+}
+
+.nav-group{margin-bottom:8px}
+
+.nav-main,
+.nav-sub{
+    width:100%;
+    appearance:none;
+    border:0;
+    background:transparent;
+    text-align:left;
+    cursor:pointer;
+    font:inherit;
+}
+
+.nav-main{
+    color:var(--muted);
+    padding:9px 12px;
+    border-radius:6px;
+    font-weight:600;
+}
+
+.nav-main:hover{
+    background:var(--card);
+    color:var(--text);
+}
+
+.nav-main.active{
+    background:rgba(0,255,156,.08);
+    color:var(--green);
+    border-left:2px solid var(--green);
+}
+
+.nav-subsections{
+    margin-left:12px;
+    padding-left:10px;
+    border-left:1px solid var(--border);
+}
+
+.nav-sub{
+    color:var(--muted);
+    padding:6px 10px;
+    border-radius:5px;
+    font-size:.82rem;
+}
+
+.nav-sub:hover{
+    background:var(--card);
+    color:var(--text);
+}
+
+.nav-sub.active{
+    color:var(--green);
+    background:rgba(0,255,156,.05);
+}
+
+main{min-width:0}
+
+.toolbar{
+    display:flex;
+    gap:12px;
+    margin-bottom:30px;
+}
+
+.search{
+    width:100%;
+    padding:13px 16px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:8px;
+    color:var(--text);
+    outline:none;
+    font-size:.95rem;
+}
+
+.search:focus{
+    border-color:var(--green);
+    box-shadow:0 0 0 2px rgba(0,255,156,.08);
+}
+
+.service-section{
+    margin-bottom:60px;
+    scroll-margin-top:100px;
+}
+
+.service-header{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:18px;
+}
+
+.service-number{
+    color:var(--green);
+    font-family:monospace;
+    font-size:1.3rem;
+    font-weight:bold;
+}
+
+.service-title{
+    margin:0;
+    font-size:1.6rem;
+}
+
+.protocol{
+    padding:3px 8px;
+    border:1px solid var(--border);
+    border-radius:999px;
+    color:var(--muted);
+    font-size:.72rem;
+    text-transform:uppercase;
+    letter-spacing:1px;
+}
+
+.section-description{
+    color:var(--muted);
+    margin-top:-8px;
+    margin-bottom:25px;
+}
+
+.subsection{
+    margin-bottom:35px;
+    scroll-margin-top:100px;
+}
+
+.subsection-header{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:14px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+}
+
+.subsection-icon{
+    color:var(--green);
+    font-family:monospace;
+    font-weight:bold;
+}
+
+.subsection-title{
+    margin:0;
+    font-size:1.15rem;
+    color:var(--text);
+}
+
+.commands{
+    display:grid;
+    gap:14px;
+}
+
+.command-card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:10px;
+    overflow:hidden;
+    transition:.2s ease;
+}
+
+.command-card:hover{
+    border-color:#33475d;
+    background:var(--card-hover);
+}
+
+.command-header{
+    padding:16px 18px;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.command-name{font-weight:700}
+
+.command-tool{
+    color:var(--blue);
+    font-family:monospace;
+    font-size:.8rem;
+}
+
+.chevron{
+    color:var(--muted);
+    transition:transform .2s ease;
+}
+
+.command-card.open .chevron{
+    transform:rotate(180deg);
+}
+
+.command-body{
+    display:none;
+    padding:0 18px 18px;
+}
+
+.command-card.open .command-body{display:block}
+
+.description{
+    color:var(--muted);
+    font-size:.9rem;
+    margin-bottom:14px;
+}
+
+.code-wrapper{position:relative}
+
+pre{
+    margin:0;
+    padding:17px 80px 17px 17px;
+    background:var(--code);
+    border:1px solid var(--border);
+    border-radius:7px;
+    overflow-x:auto;
+    color:#d8dee9;
+    font-family:
+        "JetBrains Mono",
+        "Fira Code",
+        Consolas,
+        monospace;
+    font-size:.82rem;
+    line-height:1.7;
+}
+
+.copy-button{
+    position:absolute;
+    top:8px;
+    right:8px;
+    padding:7px 10px;
+    background:#151c25;
+    border:1px solid var(--border);
+    border-radius:5px;
+    color:var(--muted);
+    cursor:pointer;
+    font-size:.75rem;
+}
+
+.copy-button:hover{
+    color:var(--green);
+    border-color:var(--green-dark);
+}
+
+.copy-button.copied{color:var(--green)}
+
+.notes{
+    margin-top:14px;
+    padding:13px 15px;
+    border-left:2px solid var(--yellow);
+    background:rgba(227,179,65,.04);
+    color:var(--muted);
+    font-size:.84rem;
+}
+
+.notes strong{color:var(--yellow)}
+
+.empty{
+    display:none;
+    padding:50px;
+    text-align:center;
+    color:var(--muted);
+}
+
+footer{
+    border-top:1px solid var(--border);
+    color:var(--muted);
+    text-align:center;
+    padding:30px 20px;
+    font-size:.8rem;
+}
+
+@media(max-width:850px){
+    .container{grid-template-columns:1fr}
+
+    .sidebar{
+        position:static;
+        max-height:none;
+        overflow-y:visible;
+    }
+
+    .nav-subsections{margin-left:5px}
+}
+
+@media(max-width:600px){
+    .header-inner{padding:12px 16px}
+    .hero{padding:50px 16px 35px}
+    .container{padding:0 16px 50px}
+
+    .command-header{padding:14px}
+    .command-body{padding:0 14px 14px}
+
+    pre{font-size:.75rem}
+
+    .service-header{flex-wrap:wrap}
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <div class="header-inner">
+        <div class="logo">
+            <div class="terminal-icon">&gt;_</div>
+            <div>OSCP<span>::</span>Methodology</div>
+        </div>
+
+        <div style="color:var(--muted);font-size:.8rem;">
+            Enumeration Reference
+        </div>
+    </div>
+</header>
+
+<section class="hero">
+    <h1>
+        Enumerate.<br>
+        <span>Understand.</span><br>
+        Exploit.
+    </h1>
+
+    <p>
+        A personal OSCP enumeration and methodology reference.
+        Commands are organised by service, methodology and
+        privilege escalation category.
+    </p>
+
+    <div class="terminal-line">
+        <span class="prompt">$</span>
+        <span>nmap -sC -sV -p- TARGET</span>
+    </div>
+</section>
+
+<div class="container">
+
+    <aside class="sidebar">
+        <div class="sidebar-title">
+            Services &amp; Methodology
+        </div>
+
+        <nav id="navigation"></nav>
+    </aside>
+
+    <main>
+        <div class="toolbar">
+            <input
+                type="search"
+                id="search"
+                class="search"
+                placeholder="Search commands, tools, ports or techniques..."
+                autocomplete="off"
+            >
+        </div>
+
+        <div id="content"></div>
+
+        <div id="empty" class="empty">
+            No commands matched your search.
+        </div>
+    </main>
+
+</div>
+
+<footer>
+    Personal OSCP methodology reference ·
+    Built for authorised lab and assessment environments
+</footer>
+
+<script>
+
+/* ============================================================
+   METHODOLOGY DATABASE
+============================================================ */
+
+const methodology = [
+
+/* ============================================================
+   FTP
+============================================================ */
+
+{
+    id:"ftp",
+    number:"21",
+    protocol:"FTP",
+    name:"File Transfer Protocol",
+    description:
+        "Check for anonymous access, enumerate the service and identify available files.",
+
+    subsections:[
+        {
+            id:"ftp-enumeration",
+            name:"Service Enumeration",
+
+            commands:[
+                {
+                    name:"FTP Enumeration",
+                    tool:"nmap",
+                    description:"Run default scripts and version detection.",
+                    command:"nmap -sC -sV -p21 TARGET",
+                    notes:"Check for anonymous access and useful service information."
+                },
+                {
+                    name:"FTP NSE Scripts",
+                    tool:"nmap",
+                    description:"Run FTP-specific NSE scripts.",
+                    command:"nmap --script=ftp-* -p21 TARGET",
+                    notes:"Useful for identifying supported functionality."
+                }
+            ]
+        },
+
+        {
+            id:"ftp-access",
+            name:"FTP Access",
+
+            commands:[
+                {
+                    name:"Anonymous FTP",
+                    tool:"ftp",
+                    description:"Attempt an anonymous FTP connection.",
+                    command:"ftp TARGET",
+                    notes:"Try username 'anonymous' when prompted."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   SSH
+============================================================ */
+
+{
+    id:"ssh",
+    number:"22",
+    protocol:"SSH",
+    name:"Secure Shell",
+    description:
+        "Identify the SSH implementation and authentication configuration.",
+
+    subsections:[
+        {
+            id:"ssh-enumeration",
+            name:"SSH Enumeration",
+
+            commands:[
+                {
+                    name:"SSH Enumeration",
+                    tool:"nmap",
+                    description:"Perform service and version detection.",
+                    command:"nmap -sC -sV -p22 TARGET",
+                    notes:"Record the SSH version and authentication configuration."
+                },
+                {
+                    name:"SSH Authentication Methods Enumeration",
+                    tool:"nmap",
+                    description:"Enumerate supported SSH authentication methods.",
+                    command:"nmap -p22 TARGET --script=ssh-auth-methods",
+                    notes:"Find out which authentication methods the SSH server supports."
+                },
+                {
+                    name:"SSH Fingerprinting",
+                    tool:"ssh-keygen",
+                    description:"View the fingerprint of an SSH key.",
+                    command:"ssh-keygen -l -f <path-to-SSH-key>",
+                    notes:"Displays the fingerprint of an SSH key stored in the specified file."
+                },
+                {
+                    name:"Verbose SSH",
+                    tool:"ssh",
+                    description:"Inspect SSH connection details.",
+                    command:"ssh -vv TARGET",
+                    notes:"Verbose output can reveal useful protocol information."
+                }
+            ]
+        },
+
+        {
+            id:"ssh-exploitation",
+            name:"SSH Exploitation",
+
+            commands:[
+                {
+                    name:"SSH Key Authentication",
+                    tool:"nxc",
+                    description:"Authenticate to SSH using a private key with NetExec.",
+                    command:"nxc ssh TARGET -u <username_or_userfile> --key-file <path_to_private_key> -p <passphrase_or_passphrasefile>",
+                    notes:"Use -p \"\" when the private key has no passphrase. Use only with authorised credentials."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   SMTP
+============================================================ */
+
+{
+    id:"smtp",
+    number:"25",
+    protocol:"SMTP",
+    name:"Simple Mail Transfer Protocol",
+    description:
+        "Enumerate SMTP services, supported commands and potential users.",
+
+    subsections:[
+        {
+            id:"smtp-enumeration",
+            name:"SMTP Enumeration",
+
+            commands:[
+                {
+                    name:"SMTP Enumeration",
+                    tool:"nmap",
+                    description:"Run SMTP enumeration scripts.",
+                    command:"nmap -sC -sV -p25 TARGET",
+                    notes:"Look for server software and supported commands."
+                },
+                {
+                    name:"SMTP NSE Scripts",
+                    tool:"nmap",
+                    description:"Run SMTP-specific NSE scripts.",
+                    command:"nmap --script=smtp-* -p25 TARGET",
+                    notes:"Review the results for configuration information."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   DNS
+============================================================ */
+
+{
+    id:"dns",
+    number:"53",
+    protocol:"DNS",
+    name:"Domain Name System",
+    description:
+        "Enumerate DNS records, nameservers and potential subdomains.",
+
+    subsections:[
+        {
+            id:"dns-enumeration",
+            name:"DNS Enumeration",
+
+            commands:[
+                {
+                    name:"DNS Enumeration",
+                    tool:"nmap",
+                    description:"Run DNS enumeration scripts.",
+                    command:"nmap -sC -sV -p53 TARGET",
+                    notes:"Consider both TCP and UDP port 53."
+                },
+                {
+                    name:"DNS Records",
+                    tool:"dig",
+                    description:"Query DNS records.",
+                    command:"dig @TARGET DOMAIN ANY",
+                    notes:"Individual record queries can provide more reliable results."
+                }
+            ]
+        },
+
+        {
+            id:"dns-zone-transfer",
+            name:"Zone Transfer",
+
+            commands:[
+                {
+                    name:"AXFR",
+                    tool:"dig",
+                    description:"Test whether a DNS zone transfer is permitted.",
+                    command:"dig axfr @TARGET DOMAIN",
+                    notes:"Replace DOMAIN with the discovered target domain."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   HTTP
+============================================================ */
+
+{
+    id:"http",
+    number:"80",
+    protocol:"HTTP",
+    name:"Web Server",
+    description:
+        "Identify web technologies, discover content and investigate application functionality.",
+
+    subsections:[
+        {
+            id:"http-enumeration",
+            name:"Web Enumeration",
+
+            commands:[
+                {
+                    name:"HTTP Enumeration",
+                    tool:"nmap",
+                    description:"Run default scripts and version detection.",
+                    command:"nmap -sC -sV -p80 TARGET",
+                    notes:"Check server headers, titles and discovered information."
+                },
+                {
+                    name:"Technology Fingerprinting",
+                    tool:"whatweb",
+                    description:"Identify technologies used by the application.",
+                    command:"whatweb http://TARGET",
+                    notes:"Look for frameworks, CMS platforms and useful headers."
+                }
+            ]
+        },
+
+        {
+            id:"http-content",
+            name:"Content Discovery",
+
+            commands:[
+                {
+                    name:"Directory Fuzzing",
+                    tool:"ffuf",
+                    description:"Discover directories and files.",
+                    command:"ffuf -u http://TARGET/FUZZ -w /usr/share/wordlists/dirb/common.txt",
+                    notes:"Adjust the wordlist and filtering options."
+                },
+                {
+                    name:"Extension Fuzzing",
+                    tool:"ffuf",
+                    description:"Search for common web file extensions.",
+                    command:"ffuf -u http://TARGET/FUZZ -w /usr/share/wordlists/dirb/common.txt -e .php,.txt,.html,.bak",
+                    notes:"Choose extensions based on identified technologies."
+                },
+                {
+                    name:"Nikto",
+                    tool:"nikto",
+                    description:"Perform automated web server checks.",
+                    command:"nikto -h http://TARGET",
+                    notes:"Use as supplementary enumeration."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   SMB 139
+============================================================ */
+
+{
+    id:"smb139",
+    number:"139",
+    protocol:"SMB",
+    name:"NetBIOS Session Service",
+    description:
+        "Enumerate SMB shares, users and server information.",
+
+    subsections:[
+        {
+            id:"smb139-enumeration",
+            name:"SMB Enumeration",
+
+            commands:[
+                {
+                    name:"SMB Enumeration",
+                    tool:"nmap",
+                    description:"Run common SMB enumeration scripts.",
+                    command:"nmap -sC -sV -p139,445 TARGET",
+                    notes:"Port 445 should also be checked."
+                },
+                {
+                    name:"Enum4linux",
+                    tool:"enum4linux",
+                    description:"Perform broader SMB enumeration.",
+                    command:"enum4linux -a TARGET",
+                    notes:"Review users, groups, shares and domain information."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   SMB 445
+============================================================ */
+
+{
+    id:"smb445",
+    number:"445",
+    protocol:"SMB",
+    name:"Microsoft-DS",
+    description:
+        "Enumerate SMB shares, permissions, users and Windows domain information.",
+
+    subsections:[
+        {
+            id:"smb445-enumeration",
+            name:"SMB Enumeration",
+
+            commands:[
+                {
+                    name:"SMB Enumeration",
+                    tool:"nmap",
+                    description:"Run default SMB scripts.",
+                    command:"nmap -sC -sV -p445 TARGET",
+                    notes:"Check hostname, domain and SMB signing."
+                },
+                {
+                    name:"List Shares",
+                    tool:"smbclient",
+                    description:"Enumerate SMB shares.",
+                    command:"smbclient -L //TARGET/ -N",
+                    notes:"Try authenticated enumeration when credentials are available."
+                },
+                {
+                    name:"SMBMap",
+                    tool:"smbmap",
+                    description:"Enumerate shares and permissions.",
+                    command:"smbmap -H TARGET",
+                    notes:"Useful for identifying readable and writable shares."
+                }
+            ]
+        },
+
+        {
+            id:"smb445-access",
+            name:"Share Access",
+
+            commands:[
+                {
+                    name:"Connect to Share",
+                    tool:"smbclient",
+                    description:"Connect to an individual SMB share.",
+                    command:"smbclient //TARGET/SHARE -N",
+                    notes:"Replace SHARE with a discovered share."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   MSSQL
+============================================================ */
+
+{
+    id:"mssql",
+    number:"1433",
+    protocol:"MSSQL",
+    name:"Microsoft SQL Server",
+    description:
+        "Enumerate Microsoft SQL Server, identify the database version and configuration, and test authorised database access.",
+
+    subsections:[
+        {
+            id:"mssql-enumeration",
+            name:"MSSQL Enumeration",
+
+            commands:[
+                {
+                    name:"MSSQL Enumeration",
+                    tool:"nmap",
+                    description:"Perform service and version detection against MSSQL.",
+                    command:"nmap -sC -sV -p1433 TARGET",
+                    notes:"Record the SQL Server version, instance information and other service details."
+                },
+                {
+                    name:"MSSQL NSE Scripts",
+                    tool:"nmap",
+                    description:"Run MSSQL-specific NSE scripts.",
+                    command:"nmap --script=ms-sql-* -p1433 TARGET",
+                    notes:"Review results for SQL Server information and configuration details."
+                },
+                {
+                    name:"MSSQL Discovery",
+                    tool:"nmap",
+                    description:"Use MSSQL discovery scripts to identify additional SQL Server information.",
+                    command:"nmap --script=ms-sql-info -p1433 TARGET",
+                    notes:"Useful for identifying SQL Server version and instance information."
+                }
+            ]
+        },
+
+        {
+            id:"mssql-access",
+            name:"MSSQL Access",
+
+            commands:[
+                {
+                    name:"Connect with Impacket",
+                    tool:"impacket-mssqlclient",
+                    description:"Connect to Microsoft SQL Server using supplied credentials.",
+                    command:"impacket-mssqlclient USERNAME:PASSWORD@TARGET",
+                    notes:"Use credentials discovered during the authorised assessment."
+                },
+                {
+                    name:"Windows Authentication",
+                    tool:"impacket-mssqlclient",
+                    description:"Connect using Windows domain credentials.",
+                    command:"impacket-mssqlclient DOMAIN/USERNAME:PASSWORD@TARGET",
+                    notes:"Replace DOMAIN, USERNAME, PASSWORD and TARGET appropriately."
+                },
+                {
+                    name:"Trusted Connection",
+                    tool:"impacket-mssqlclient",
+                    description:"Authenticate using Windows authentication.",
+                    command:"impacket-mssqlclient -windows-auth DOMAIN/USERNAME:PASSWORD@TARGET",
+                    notes:"The -windows-auth option is commonly required for Windows-based SQL Server authentication."
+                }
+            ]
+        },
+
+        {
+            id:"mssql-database",
+            name:"Database Enumeration",
+
+            commands:[
+                {
+                    name:"List Databases",
+                    tool:"mssqlclient",
+                    description:"List databases accessible to the authenticated account.",
+                    command:"SELECT name FROM sys.databases;",
+                    notes:"Run from the MSSQL client after authentication."
+                },
+                {
+                    name:"Current User",
+                    tool:"mssqlclient",
+                    description:"Identify the current SQL Server user.",
+                    command:"SELECT SYSTEM_USER;",
+                    notes:"Useful for identifying the current security context."
+                },
+                {
+                    name:"Server Version",
+                    tool:"mssqlclient",
+                    description:"Display the SQL Server version.",
+                    command:"SELECT @@VERSION;",
+                    notes:"Record the SQL Server version for further research."
+                },
+                {
+                    name:"List Tables",
+                    tool:"mssqlclient",
+                    description:"List tables in the current database.",
+                    command:"SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES;",
+                    notes:"Useful for identifying potentially interesting tables."
+                }
+            ]
+        },
+
+        {
+            id:"mssql-privileges",
+            name:"MSSQL Privileges",
+
+            commands:[
+                {
+                    name:"Check Sysadmin",
+                    tool:"mssqlclient",
+                    description:"Determine whether the current account has sysadmin privileges.",
+                    command:"SELECT IS_SRVROLEMEMBER('sysadmin');",
+                    notes:"A result of 1 indicates membership of the sysadmin server role."
+                },
+                {
+                    name:"Server Roles",
+                    tool:"mssqlclient",
+                    description:"Enumerate server role membership.",
+                    command:"SELECT IS_SRVROLEMEMBER();",
+                    notes:"Use role membership information to understand the privileges available to the current account."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   MYSQL
+============================================================ */
+
+{
+    id:"mysql",
+    number:"3306",
+    protocol:"MYSQL",
+    name:"MySQL",
+    description:
+        "Enumerate the MySQL service, identify the database version and configuration, and test authorised database access.",
+
+    subsections:[
+        {
+            id:"mysql-enumeration",
+            name:"MySQL Enumeration",
+
+            commands:[
+                {
+                    name:"MySQL Enumeration",
+                    tool:"nmap",
+                    description:"Perform service and version detection.",
+                    command:"nmap -sC -sV -p3306 TARGET",
+                    notes:"Record MySQL version, hostname and authentication information."
+                },
+                {
+                    name:"MySQL NSE Scripts",
+                    tool:"nmap",
+                    description:"Run MySQL-specific NSE scripts.",
+                    command:"nmap --script=mysql-* -p3306 TARGET",
+                    notes:"Review output for useful service and configuration information."
+                }
+            ]
+        },
+
+        {
+            id:"mysql-access",
+            name:"MySQL Access",
+
+            commands:[
+                {
+                    name:"Connect to MySQL",
+                    tool:"mysql",
+                    description:"Connect to MySQL using supplied credentials.",
+                    command:"mysql -h TARGET -P 3306 -u USERNAME -p",
+                    notes:"Enter the password when prompted."
+                },
+                {
+                    name:"Connect to Specific Database",
+                    tool:"mysql",
+                    description:"Connect directly to a specific MySQL database.",
+                    command:"mysql -h TARGET -P 3306 -u USERNAME -p DATABASE",
+                    notes:"Replace DATABASE with a discovered database name."
+                },
+                {
+                    name:"Show Databases",
+                    tool:"mysql",
+                    description:"List databases available to the authenticated account.",
+                    command:"SHOW DATABASES;",
+                    notes:"Run this from the MySQL prompt after authentication."
+                },
+                {
+                    name:"Show Tables",
+                    tool:"mysql",
+                    description:"List tables in the selected database.",
+                    command:"SHOW TABLES;",
+                    notes:"Run USE DATABASE; first if necessary."
+                }
+            ]
+        },
+
+        {
+            id:"mysql-information",
+            name:"Database Information",
+
+            commands:[
+                {
+                    name:"MySQL Version",
+                    tool:"mysql",
+                    description:"Display the MySQL server version.",
+                    command:"SELECT VERSION();",
+                    notes:"Useful for identifying the exact database version."
+                },
+                {
+                    name:"Current User",
+                    tool:"mysql",
+                    description:"Display the account currently being used.",
+                    command:"SELECT USER();",
+                    notes:"Useful for identifying the authenticated MySQL account."
+                },
+                {
+                    name:"Current Database",
+                    tool:"mysql",
+                    description:"Display the currently selected database.",
+                    command:"SELECT DATABASE();",
+                    notes:"Returns NULL if no database has been selected."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   RDP
+============================================================ */
+
+{
+    id:"rdp",
+    number:"3389",
+    protocol:"RDP",
+    name:"Remote Desktop Protocol",
+    description:
+        "Identify the RDP implementation and security configuration.",
+
+    subsections:[
+        {
+            id:"rdp-enumeration",
+            name:"RDP Enumeration",
+
+            commands:[
+                {
+                    name:"RDP Enumeration",
+                    tool:"nmap",
+                    description:"Run RDP-related enumeration scripts.",
+                    command:"nmap -sC -sV -p3389 TARGET",
+                    notes:"Record Windows version and security configuration."
+                }
+            ]
+        },
+
+        {
+            id:"rdp-access",
+            name:"RDP Access",
+
+            commands:[
+                {
+                    name:"RDP Connection",
+                    tool:"xfreerdp",
+                    description:"Connect using authorised credentials.",
+                    command:"xfreerdp /v:TARGET /u:USERNAME",
+                    notes:"Use only with authorised credentials."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   ACTIVE DIRECTORY
+============================================================ */
+
+{
+    id:"active-directory",
+    number:"AD",
+    protocol:"ACTIVE DIRECTORY",
+    name:"Active Directory",
+    description:
+        "Enumerate Active Directory environments, domains, users, groups, authentication services and network resources.",
+
+    subsections:[
+
+        /* ----------------------------------------------------
+           DOMAIN ENUMERATION
+        ---------------------------------------------------- */
+
+        {
+            id:"ad-domain-enumeration",
+            name:"Domain Enumeration",
+
+            commands:[
+                {
+                    name:"Domain Controller Discovery",
+                    tool:"nmap",
+                    description:"Identify common Active Directory services.",
+                    command:"nmap -sC -sV -p53,88,135,139,389,445,464,636,3268,3269 TARGET",
+                    notes:"Look for DNS, Kerberos, LDAP, SMB and Global Catalog services."
+                },
+                {
+                    name:"DNS Domain Information",
+                    tool:"dig",
+                    description:"Query DNS information from the target.",
+                    command:"dig @TARGET DOMAIN",
+                    notes:"Useful for identifying domain infrastructure."
+                },
+
+                /* PowerView */
+
+                {
+                    name:"PowerView — Domain Information",
+                    tool:"PowerView",
+                    description:"Retrieve basic information about the current Active Directory domain.",
+                    command:"Get-Domain",
+                    notes:"Useful as an initial PowerView query to identify the current domain."
+                },
+                {
+                    name:"PowerView — Domain Controllers",
+                    tool:"PowerView",
+                    description:"Enumerate domain controllers.",
+                    command:"Get-DomainController",
+                    notes:"Record hostnames, IP addresses and other domain controller information."
+                },
+                {
+                    name:"PowerView — Domain SID",
+                    tool:"PowerView",
+                    description:"Retrieve the SID of the current domain.",
+                    command:"Get-DomainSID",
+                    notes:"Useful when correlating domain objects and SIDs."
+                },
+                {
+                    name:"PowerView — Domain Policy",
+                    tool:"PowerView",
+                    description:"Retrieve the domain password policy.",
+                    command:"Get-DomainPolicy",
+                    notes:"Review password and account-lockout settings during authorised enumeration."
+                },
+                {
+                    name:"PowerView — Domain Trusts",
+                    tool:"PowerView",
+                    description:"Enumerate domain trust relationships.",
+                    command:"Get-DomainTrust",
+                    notes:"Useful for identifying relationships between domains in an AD environment."
+                },
+                {
+                    name:"PowerView — Forest Information",
+                    tool:"PowerView",
+                    description:"Enumerate information about the current AD forest.",
+                    command:"Get-Forest",
+                    notes:"Useful for identifying forest-level information."
+                },
+                {
+                    name:"PowerView — Forest Domains",
+                    tool:"PowerView",
+                    description:"Enumerate domains within the forest.",
+                    command:"Get-ForestDomain",
+                    notes:"Useful for identifying additional domains that may be relevant to the assessment."
+                }
+            ]
+        },
+
+        /* ----------------------------------------------------
+           USER ENUMERATION
+        ---------------------------------------------------- */
+
+        {
+            id:"ad-user-enumeration",
+            name:"User Enumeration",
+
+            commands:[
+                {
+                    name:"Domain Users",
+                    tool:"rpcclient",
+                    description:"Enumerate domain users when RPC access is available.",
+                    command:"rpcclient -U '' -N TARGET -c 'enumdomusers'",
+                    notes:"Requires appropriate RPC access."
+                },
+                {
+                    name:"Domain Groups",
+                    tool:"rpcclient",
+                    description:"Enumerate domain groups.",
+                    command:"rpcclient -U '' -N TARGET -c 'enumdomgroups'",
+                    notes:"Pay attention to privileged groups."
+                },
+                {
+                    name:"SMB User Enumeration",
+                    tool:"enum4linux",
+                    description:"Attempt broader user and domain enumeration.",
+                    command:"enum4linux -a TARGET",
+                    notes:"Review users, groups, shares and domain information."
+                },
+
+                /* PowerView */
+
+                {
+                    name:"PowerView — Domain Users",
+                    tool:"PowerView",
+                    description:"Enumerate domain user objects.",
+                    command:"Get-DomainUser",
+                    notes:"Review usernames, descriptions, group memberships and other available attributes."
+                },
+                {
+                    name:"PowerView — Specific User",
+                    tool:"PowerView",
+                    description:"Retrieve information about a specific domain user.",
+                    command:"Get-DomainUser -Identity USERNAME",
+                    notes:"Replace USERNAME with a discovered account."
+                },
+                {
+                    name:"PowerView — User Properties",
+                    tool:"PowerView",
+                    description:"Display selected properties for domain users.",
+                    command:"Get-DomainUser -Properties samaccountname,description,memberof,pwdlastset,lastlogon",
+                    notes:"Useful for quickly reviewing account metadata during enumeration."
+                },
+                {
+                    name:"PowerView — Domain Groups",
+                    tool:"PowerView",
+                    description:"Enumerate domain groups.",
+                    command:"Get-DomainGroup",
+                    notes:"Look for privileged and security-sensitive groups."
+                },
+                {
+                    name:"PowerView — Group Members",
+                    tool:"PowerView",
+                    description:"Enumerate members of a specific domain group.",
+                    command:"Get-DomainGroupMember -Identity \"GROUP_NAME\"",
+                    notes:"Replace GROUP_NAME with a discovered group."
+                },
+                {
+                    name:"PowerView — Domain Admins",
+                    tool:"PowerView",
+                    description:"Enumerate members of the Domain Admins group.",
+                    command:"Get-DomainGroupMember -Identity \"Domain Admins\"",
+                    notes:"Useful for understanding privileged account membership."
+                },
+                {
+                    name:"PowerView — User Groups",
+                    tool:"PowerView",
+                    description:"Identify the groups a particular user belongs to.",
+                    command:"Get-DomainUser -Identity USERNAME | Select-Object -ExpandProperty memberof",
+                    notes:"Replace USERNAME with the account being investigated."
+                },
+                {
+                    name:"PowerView — Users with SPNs",
+                    tool:"PowerView",
+                    description:"Identify domain accounts with service principal names.",
+                    command:"Get-DomainUser -SPN",
+                    notes:"SPN-bearing accounts are worth documenting during Kerberos enumeration."
+                }
+            ]
+        },
+
+        /* ----------------------------------------------------
+           KERBEROS
+        ---------------------------------------------------- */
+
+        {
+            id:"ad-kerberos",
+            name:"Kerberos",
+
+            commands:[
+                {
+                    name:"Kerberos Enumeration",
+                    tool:"nmap",
+                    description:"Identify the Kerberos service.",
+                    command:"nmap -sC -sV -p88 TARGET",
+                    notes:"Kerberos is normally hosted by domain controllers."
+                },
+                {
+                    name:"Kerberos Service Discovery",
+                    tool:"nmap",
+                    description:"Identify Kerberos-related information.",
+                    command:"nmap --script=krb5-enum-users -p88 TARGET",
+                    notes:"Use only where appropriate for your authorised assessment."
+                }
+            ]
+        },
+
+        /* ----------------------------------------------------
+           LDAP
+        ---------------------------------------------------- */
+
+        {
+            id:"ad-ldap",
+            name:"LDAP",
+
+            commands:[
+                {
+                    name:"LDAP Naming Context",
+                    tool:"ldapsearch",
+                    description:"Query LDAP naming contexts.",
+                    command:"ldapsearch -x -H ldap://TARGET -s base namingcontexts",
+                    notes:"Use discovered naming contexts for further queries."
+                },
+                {
+                    name:"LDAP Base Query",
+                    tool:"ldapsearch",
+                    description:"Query the LDAP directory base.",
+                    command:"ldapsearch -x -H ldap://TARGET -b 'DC=DOMAIN,DC=LOCAL'",
+                    notes:"Replace the base DN with the discovered domain."
+                }
+            ]
+        },
+
+        /* ----------------------------------------------------
+           SMB / WINDOWS NETWORKING
+        ---------------------------------------------------- */
+
+        {
+            id:"ad-smb",
+            name:"SMB / Windows Networking",
+
+            commands:[
+                {
+                    name:"SMB Share Enumeration",
+                    tool:"smbclient",
+                    description:"Enumerate SMB shares on a domain controller.",
+                    command:"smbclient -L //TARGET/ -N",
+                    notes:"Review accessible shares for useful information."
+                },
+                {
+                    name:"RPC Enumeration",
+                    tool:"rpcclient",
+                    description:"Connect to Windows RPC services.",
+                    command:"rpcclient -U '' -N TARGET",
+                    notes:"Useful for domain and user enumeration when permitted."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   WINDOWS PRIVILEGE ESCALATION
+============================================================ */
+
+{
+    id:"windows-privesc",
+    number:"WIN",
+    protocol:"WINDOWS",
+    name:"Windows Privilege Escalation",
+    description:
+        "Enumerate Windows hosts for privilege escalation opportunities including weak permissions, services, scheduled tasks, credentials and account configuration.",
+
+    subsections:[
+        {
+            id:"win-system",
+            name:"System Enumeration",
+
+            commands:[
+                {
+                    name:"System Information",
+                    tool:"systeminfo",
+                    description:"Enumerate Windows OS information and installed hotfixes.",
+                    command:"systeminfo",
+                    notes:"Record OS version, architecture and installed patches."
+                },
+                {
+                    name:"Hostname",
+                    tool:"hostname",
+                    description:"Display the hostname.",
+                    command:"hostname",
+                    notes:"Useful when correlating host information."
+                },
+                {
+                    name:"Environment Variables",
+                    tool:"set",
+                    description:"Display environment variables.",
+                    command:"set",
+                    notes:"Review variables for paths, credentials and configuration information."
+                }
+            ]
+        },
+
+        {
+            id:"win-users",
+            name:"Users & Groups",
+
+            commands:[
+                {
+                    name:"Current User",
+                    tool:"whoami",
+                    description:"Display the current account.",
+                    command:"whoami",
+                    notes:"Establish the current security context."
+                },
+                {
+                    name:"Current User Privileges",
+                    tool:"whoami",
+                    description:"Display groups and privileges.",
+                    command:"whoami /all",
+                    notes:"Pay attention to interesting privileges."
+                },
+                {
+                    name:"Local Users",
+                    tool:"net",
+                    description:"Enumerate local user accounts.",
+                    command:"net user",
+                    notes:"Look for additional accounts."
+                },
+                {
+                    name:"Administrators",
+                    tool:"net",
+                    description:"Enumerate members of the local Administrators group.",
+                    command:"net localgroup administrators",
+                    notes:"Useful for understanding local privilege boundaries."
+                }
+            ]
+        },
+
+        {
+            id:"win-services",
+            name:"Services",
+
+            commands:[
+                {
+                    name:"Running Services",
+                    tool:"sc",
+                    description:"Enumerate Windows services.",
+                    command:"sc query",
+                    notes:"Look for unusual or third-party services."
+                },
+                {
+                    name:"Service Configuration",
+                    tool:"sc",
+                    description:"Inspect an individual service.",
+                    command:"sc qc SERVICE_NAME",
+                    notes:"Review executable paths and service accounts."
+                }
+            ]
+        },
+
+        {
+            id:"win-scheduled",
+            name:"Scheduled Tasks",
+
+            commands:[
+                {
+                    name:"Scheduled Task Enumeration",
+                    tool:"schtasks",
+                    description:"Enumerate scheduled tasks and configuration.",
+                    command:"schtasks /query /fo LIST /v",
+                    notes:"Look for elevated tasks executing writable files."
+                }
+            ]
+        },
+
+        {
+            id:"win-credentials",
+            name:"Credentials & Configuration",
+
+            commands:[
+                {
+                    name:"PowerShell History",
+                    tool:"PowerShell",
+                    description:"Review PowerShell command history.",
+                    command:"Get-Content (Get-PSReadLineOption).HistorySavePath",
+                    notes:"History may contain useful operational information."
+                },
+                {
+                    name:"Saved Credentials",
+                    tool:"cmdkey",
+                    description:"List Windows stored credentials.",
+                    command:"cmdkey /list",
+                    notes:"Review entries for accessible saved credentials."
+                }
+            ]
+        }
+    ]
+},
+
+/* ============================================================
+   LINUX PRIVILEGE ESCALATION
+============================================================ */
+
+{
+    id:"linux-privesc",
+    number:"LIN",
+    protocol:"LINUX",
+    name:"Linux Privilege Escalation",
+    description:
+        "Enumerate Linux hosts for weak permissions, sudo configuration, SUID/SGID binaries, capabilities, scheduled tasks and other privilege escalation opportunities.",
+
+    subsections:[
+        {
+            id:"linux-system",
+            name:"System Enumeration",
+
+            commands:[
+                {
+                    name:"Kernel Information",
+                    tool:"uname",
+                    description:"Identify the running kernel and architecture.",
+                    command:"uname -a",
+                    notes:"Record the kernel version and architecture."
+                },
+                {
+                    name:"OS Information",
+                    tool:"cat",
+                    description:"Identify the Linux distribution.",
+                    command:"cat /etc/os-release",
+                    notes:"Useful for understanding the target environment."
+                },
+                {
+                    name:"Running Processes",
+                    tool:"ps",
+                    description:"Enumerate running processes.",
+                    command:"ps aux",
+                    notes:"Look for root-owned processes and unusual services."
+                }
+            ]
+        },
+
+        {
+            id:"linux-users",
+            name:"Users & Groups",
+
+            commands:[
+                {
+                    name:"Current User",
+                    tool:"id",
+                    description:"Display current user and group memberships.",
+                    command:"id",
+                    notes:"Group memberships may provide additional access."
+                },
+                {
+                    name:"Local Users",
+                    tool:"cat",
+                    description:"Review local user accounts.",
+                    command:"cat /etc/passwd",
+                    notes:"Look for interesting accounts and shells."
+                },
+                {
+                    name:"Group Information",
+                    tool:"cat",
+                    description:"Review local groups.",
+                    command:"cat /etc/group",
+                    notes:"Look for groups that may provide additional privileges."
+                }
+            ]
+        },
+
+        {
+            id:"linux-sudo",
+            name:"Sudo",
+
+            commands:[
+                {
+                    name:"Sudo Permissions",
+                    tool:"sudo",
+                    description:"Check commands available through sudo.",
+                    command:"sudo -l",
+                    notes:"Pay close attention to commands executable with elevated privileges."
+                }
+            ]
+        },
+
+        {
+            id:"linux-suid",
+            name:"SUID / SGID",
+
+            commands:[
+                {
+                    name:"SUID Files",
+                    tool:"find",
+                    description:"Search for SUID binaries.",
+                    command:"find / -perm -4000 -type f 2>/dev/null",
+                    notes:"Investigate unusual SUID binaries."
+                },
+                {
+                    name:"SGID Files",
+                    tool:"find",
+                    description:"Search for SGID binaries.",
+                    command:"find / -perm -2000 -type f 2>/dev/null",
+                    notes:"Investigate unusual SGID binaries."
+                }
+            ]
+        },
+
+        {
+            id:"linux-capabilities",
+            name:"Linux Capabilities",
+
+            commands:[
+                {
+                    name:"Enumerate Capabilities",
+                    tool:"getcap",
+                    description:"Search for files with Linux capabilities.",
+                    command:"getcap -r / 2>/dev/null",
+                    notes:"Pay attention to unusual capabilities assigned to binaries."
+                }
+            ]
+        },
+
+        {
+            id:"linux-cron",
+            name:"Cron & Scheduled Tasks",
+
+            commands:[
+                {
+                    name:"System Cron",
+                    tool:"cat",
+                    description:"Review system cron configuration.",
+                    command:"cat /etc/crontab",
+                    notes:"Look for root-owned scheduled tasks and writable scripts."
+                },
+                {
+                    name:"Cron Directories",
+                    tool:"ls",
+                    description:"Review common cron directories.",
+                    command:"ls -la /etc/cron.*",
+                    notes:"Look for unusual scheduled scripts."
+                }
+            ]
+        }
+    ]
+}
+
+];
+
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
+
+const navigation = document.getElementById("navigation");
+
+function buildNavigation(data){
+
+    navigation.innerHTML="";
+
+    data.forEach(service=>{
+
+        const group=document.createElement("div");
+        group.className="nav-group";
+
+        const mainButton=document.createElement("button");
+        mainButton.className="nav-main";
+        mainButton.textContent=`${service.number} — ${service.name}`;
+
+        mainButton.addEventListener("click",()=>{
+
+            const target=document.getElementById(
+                `service-${service.id}`
+            );
+
+            if(target){
+                target.scrollIntoView({
+                    behavior:"smooth",
+                    block:"start"
+                });
+            }
+        });
+
+        group.appendChild(mainButton);
+
+        const subsectionContainer=document.createElement("div");
+        subsectionContainer.className="nav-subsections";
+
+        service.subsections.forEach(subsection=>{
+
+            const subButton=document.createElement("button");
+            subButton.className="nav-sub";
+            subButton.textContent=subsection.name;
+
+            subButton.addEventListener("click",()=>{
+
+                const target=document.getElementById(
+                    `subsection-${subsection.id}`
+                );
+
+                if(target){
+                    target.scrollIntoView({
+                        behavior:"smooth",
+                        block:"start"
+                    });
+                }
+            });
+
+            subsectionContainer.appendChild(subButton);
+        });
+
+        group.appendChild(subsectionContainer);
+        navigation.appendChild(group);
+    });
+}
+
+
+/* ============================================================
+   HTML ESCAPING
+============================================================ */
+
+function escapeHtml(value){
+
+    return String(value)
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+}
+
+
+/* ============================================================
+   RENDER CONTENT
+============================================================ */
+
+const content=document.getElementById("content");
+
+function render(data){
+
+    content.innerHTML="";
+
+    data.forEach(service=>{
+
+        const serviceSection=document.createElement("section");
+
+        serviceSection.className="service-section";
+        serviceSection.id=`service-${service.id}`;
+
+        const header=document.createElement("div");
+        header.className="service-header";
+
+        header.innerHTML=`
+            <div class="service-number">
+                ${escapeHtml(service.number)}
+            </div>
+
+            <h2 class="service-title">
+                ${escapeHtml(service.name)}
+            </h2>
+
+            <span class="protocol">
+                ${escapeHtml(service.protocol)}
+            </span>
+        `;
+
+        serviceSection.appendChild(header);
+
+        const description=document.createElement("div");
+        description.className="section-description";
+        description.textContent=service.description;
+
+        serviceSection.appendChild(description);
+
+        service.subsections.forEach(subsection=>{
+
+            const subsectionElement=document.createElement("div");
+
+            subsectionElement.className="subsection";
+            subsectionElement.id=`subsection-${subsection.id}`;
+
+            subsectionElement.innerHTML=`
+                <div class="subsection-header">
+                    <span class="subsection-icon">&gt;_</span>
+
+                    <h3 class="subsection-title">
+                        ${escapeHtml(subsection.name)}
+                    </h3>
+                </div>
+
+                <div class="commands"></div>
+            `;
+
+            const commandsContainer=
+                subsectionElement.querySelector(".commands");
+
+            subsection.commands.forEach(command=>{
+
+                const card=document.createElement("article");
+                card.className="command-card";
+
+                const header=document.createElement("div");
+                header.className="command-header";
+
+                header.innerHTML=`
+                    <div>
+                        <div class="command-name">
+                            ${escapeHtml(command.name)}
+                        </div>
+
+                        <div class="command-tool">
+                            ${escapeHtml(command.tool)}
+                        </div>
+                    </div>
+
+                    <div class="chevron">▼</div>
+                `;
+
+                header.addEventListener("click",()=>{
+                    card.classList.toggle("open");
+                });
+
+                const body=document.createElement("div");
+                body.className="command-body";
+
+                const desc=document.createElement("div");
+                desc.className="description";
+                desc.textContent=command.description;
+
+                const wrapper=document.createElement("div");
+                wrapper.className="code-wrapper";
+
+                const pre=document.createElement("pre");
+                const code=document.createElement("code");
+
+                code.textContent=command.command;
+
+                pre.appendChild(code);
+
+                const copyButton=document.createElement("button");
+                copyButton.className="copy-button";
+                copyButton.textContent="Copy";
+
+                copyButton.addEventListener("click",async event=>{
+                    event.stopPropagation();
+                    await copyCommand(copyButton,code.textContent);
+                });
+
+                wrapper.appendChild(pre);
+                wrapper.appendChild(copyButton);
+
+                body.appendChild(desc);
+                body.appendChild(wrapper);
+
+                if(command.notes){
+
+                    const notes=document.createElement("div");
+                    notes.className="notes";
+
+                    const strong=document.createElement("strong");
+                    strong.textContent="Note: ";
+
+                    notes.appendChild(strong);
+                    notes.appendChild(
+                        document.createTextNode(command.notes)
+                    );
+
+                    body.appendChild(notes);
+                }
+
+                card.appendChild(header);
+                card.appendChild(body);
+
+                commandsContainer.appendChild(card);
+            });
+
+            serviceSection.appendChild(subsectionElement);
+        });
+
+        content.appendChild(serviceSection);
+    });
+}
+
+
+/* ============================================================
+   COPY COMMAND
+============================================================ */
+
+async function copyCommand(button,text){
+
+    try{
+
+        await navigator.clipboard.writeText(text);
+
+        button.textContent="Copied!";
+        button.classList.add("copied");
+
+        setTimeout(()=>{
+            button.textContent="Copy";
+            button.classList.remove("copied");
+        },1500);
+
+    }catch(error){
+
+        button.textContent="Failed";
+
+        setTimeout(()=>{
+            button.textContent="Copy";
+        },1500);
+    }
+}
+
+
+/* ============================================================
+   SEARCH
+============================================================ */
+
+const search=document.getElementById("search");
+const empty=document.getElementById("empty");
+
+search.addEventListener("input",()=>{
+
+    const query=search.value.toLowerCase().trim();
+
+    if(!query){
+
+        render(methodology);
+        buildNavigation(methodology);
+        empty.style.display="none";
+
+        return;
+    }
+
+    const filtered=methodology
+        .map(service=>{
+
+            const serviceText=[
+                service.number,
+                service.protocol,
+                service.name,
+                service.description
+            ].join(" ").toLowerCase();
+
+            const serviceMatches=
+                serviceText.includes(query);
+
+            const filteredSubsections=
+                service.subsections
+                    .map(subsection=>{
+
+                        const subsectionText=[
+                            subsection.name,
+                            subsection.id
+                        ].join(" ").toLowerCase();
+
+                        const subsectionMatches=
+                            subsectionText.includes(query);
+
+                        const commands=
+                            subsection.commands.filter(command=>{
+
+                                const commandText=[
+                                    command.name,
+                                    command.tool,
+                                    command.description,
+                                    command.command,
+                                    command.notes || ""
+                                ].join(" ").toLowerCase();
+
+                                return commandText.includes(query);
+                            });
+
+                        if(serviceMatches || subsectionMatches){
+                            return subsection;
+                        }
+
+                        if(commands.length){
+                            return {
+                                ...subsection,
+                                commands
+                            };
+                        }
+
+                        return null;
+                    })
+                    .filter(Boolean);
+
+            if(serviceMatches){
+                return service;
+            }
+
+            if(filteredSubsections.length){
+
+                return {
+                    ...service,
+                    subsections:filteredSubsections
+                };
+            }
+
+            return null;
+        })
+        .filter(Boolean);
+
+    render(filtered);
+    buildNavigation(filtered);
+
+    empty.style.display=
+        filtered.length===0
+            ? "block"
+            : "none";
+});
+
+
+/* ============================================================
+   ACTIVE NAVIGATION
+============================================================ */
+
+const observer=new IntersectionObserver(
+    entries=>{
+
+        entries.forEach(entry=>{
+
+            if(!entry.isIntersecting){
+                return;
+            }
+
+            const id=entry.target.id;
+
+            document
+                .querySelectorAll(".nav-main,.nav-sub")
+                .forEach(button=>{
+                    button.classList.remove("active");
+                });
+
+            document
+                .querySelectorAll(
+                    `[data-target="${id}"]`
+                )
+                .forEach(button=>{
+                    button.classList.add("active");
+                });
+        });
+    },
+    {
+        rootMargin:"-120px 0px -60% 0px"
+    }
+);
+
+
+/* ============================================================
+   INITIALISE
+============================================================ */
+
+buildNavigation(methodology);
+render(methodology);
+
+</script>
+
+</body>
+</html>
